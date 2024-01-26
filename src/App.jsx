@@ -1,21 +1,41 @@
-import { useState } from "react";
+import React, { useState } from "react"; // eslint-disable-line no-unused-vars
+import ChatRoom from "./components/ChatRoom";
+import classes from "./components/JoinChat.module.css";
 import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0);
+const App = () => {
+  const [nickname, setNickname] = useState("");
+  const [enteredChat, setEnteredChat] = useState(false);
+
+  const handleEnterChat = () => {
+    if (nickname.trim() !== "") {
+      setEnteredChat(true);
+    }
+  };
 
   return (
-    <>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
-    </>
+    <div className="app">
+      {!enteredChat ? (
+        <div className={classes.join_chat}>
+          <article>
+            <div className={classes.nickname_input}>
+              <label>닉네임</label>
+              <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="닉네임을 입력해주세요." />
+              <span className={classes.focus} data-symbol="user"></span>
+            </div>
+            <div className={classes.join_chat_btn}>
+              <div>
+                <div className={classes.join_chat_btn_bg}></div>
+                <button onClick={handleEnterChat}> 채팅 참여하기 </button>
+              </div>
+            </div>
+          </article>
+        </div>
+      ) : (
+        <ChatRoom nickname={nickname} />
+      )}
+    </div>
   );
-}
+};
 
 export default App;
