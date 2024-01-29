@@ -16,9 +16,10 @@ const MessageInput = ({ nickname }) => {
       // 메시지를 Realtime Database에 저장
       push(messagesRef, {
         text: message,
-        nickname,
+        nickname: nickname, // 닉네임 값이 올바르게 설정되어 있는지 확인
         timestamp: Date.now(),
       });
+      console.log("Nickname:", nickname, "Message:", message);
 
       setMessage(""); // 입력 필드 초기화
     }
@@ -26,8 +27,8 @@ const MessageInput = ({ nickname }) => {
 
   return (
     <div className={classes.message_input}>
-      <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Type a message..." />
-      <button onClick={handleSendMessage}>Send</button>
+      <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="메시지를 입력해주세요" />
+      <button onClick={handleSendMessage}>발송</button>
     </div>
   );
 };

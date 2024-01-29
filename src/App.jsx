@@ -1,41 +1,40 @@
-import React, { useState } from "react"; // eslint-disable-line no-unused-vars
+import React, { useState, useEffect } from "react"; // eslint-disable-line no-unused-vars
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebaseConfig"; // Firebase 인증 객체 가져오기
+
 import ChatRoom from "./components/ChatRoom";
-import classes from "./components/JoinChat.module.css";
+import LoginForm from "./components/LoginForm";
+import SignUpForm from "./components/SignUpForm";
+
 import "./App.css";
 
 const App = () => {
-  const [nickname, setNickname] = useState("");
-  const [enteredChat, setEnteredChat] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isSigningUp, setIsSigningUp] = useState(false);
 
-  const handleEnterChat = () => {
-    if (nickname.trim() !== "") {
-      setEnteredChat(true);
-    }
+  const handleSignUpClick = () => {
+    setIsSigningUp(true);
   };
 
-  return (
-    <div className="app">
-      {!enteredChat ? (
-        <div className={classes.join_chat}>
-          <article>
-            <div className={classes.nickname_input}>
-              <label>닉네임</label>
-              <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="닉네임을 입력해주세요." />
-              <span className={classes.focus} data-symbol="user"></span>
-            </div>
-            <div className={classes.join_chat_btn}>
-              <div>
-                <div className={classes.join_chat_btn_bg}></div>
-                <button onClick={handleEnterChat}> 채팅 참여하기 </button>
-              </div>
-            </div>
-          </article>
-        </div>
-      ) : (
-        <ChatRoom nickname={nickname} />
-      )}
-    </div>
-  );
+  const handleSignUpSuccess = () => {
+    setIsSigningUp(false);
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // 사용자가 로그인한 경우
+        setCurrentUser(user);
+      } else {
+        // 사용자가 로그아웃한 경우
+        setCurrentUser(null);
+      }
+    });
+
+    return () => unsubscribe(); // 구독 해제
+  }, []);
+
+  return <div className="app">{currentUser ? <ChatRoom user={currentUser} /> : isSigningUp ? <SignUpForm onSignUpSuccess={handleSignUpSuccess} /> : <LoginForm onSignUpClick={handleSignUpClick} />}</div>;
 };
 
 export default App;

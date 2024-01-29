@@ -3,13 +3,16 @@ import React, { useEffect, useState } from "react"; // eslint-disable-line no-un
 import { database } from "../firebaseConfig";
 import { ref, onValue } from "firebase/database";
 
-const MessageList = () => {
+import classes from "./MessageList.module.css";
+import PropTypes from "prop-types";
+import messageProfile from "../assets/message_profile.jpg";
+
+const MessageList = ({ currentUser }) => {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     const messagesRef = ref(database, "messages");
 
-    // onValue 호출 시 반환되는 unsubscribe 함수를 저장
     const unsubscribe = onValue(messagesRef, (snapshot) => {
       const messagesData = snapshot.val();
       const loadedMessages = [];
@@ -22,21 +25,29 @@ const MessageList = () => {
       setMessages(loadedMessages);
     });
 
-    // 컴포넌트가 언마운트될 때 구독 해제
-    return () => {
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   return (
-    <div className="message-list">
+    <div className={classes.message_list}>
       {messages.map((message) => (
-        <div key={message.id} className="message">
-          {message.text}
+        <div key={message.id} className={`${classes.message} ${message.nickname === currentUser.displayName ? classes.current_user : ""}`}>
+          <div className={classes.profile}>
+            <img src={messageProfile} alt="" />
+          </div>
+          <div className={classes.content}>
+            <p className={classes.nickname}>{message.nickname}</p>
+            <p className={classes.text}>{message.text}</p>
+            <p className={classes.time}>{new Date(message.timestamp).toLocaleString()}</p>
+          </div>
         </div>
       ))}
     </div>
   );
+};
+
+MessageList.propTypes = {
+  currentUser: PropTypes.object.isRequired,
 };
 
 export default MessageList;
