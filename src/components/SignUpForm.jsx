@@ -3,13 +3,12 @@ import React, { useState } from "react"; // eslint-disable-line no-unused-vars
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { ref, set } from "firebase/database";
 import { auth, database, functions } from "../firebaseConfig"; // database 객체 가져오기
-import { httpsCallable } from "firebase/functions"; // 이 부분을 추가하세요
 
 import PropTypes from "prop-types";
 import classes from "./SignUpForm.module.css";
 
 const checkNicknameUnique = async (nickname) => {
-  const checkNicknameFunction = httpsCallable(functions, "checkNickname");
+  const checkNicknameFunction = functions.httpsCallable("checkNickname");
   try {
     const result = await checkNicknameFunction({ nickname });
     return result.data.unique;
