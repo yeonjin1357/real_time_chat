@@ -1,0 +1,10 @@
+.onlineUsers {
+  width: 100%;
+  height: 100%;
+  margin: 20px 0;
+  padding: 20px 10px;
+  border-radius: 15px;
+  border: 1px solid #ccc;
+  text-align: center;
+  background: #fff;
+}

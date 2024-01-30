@@ -1,27 +1,31 @@
 // src/components/SignUpForm.jsx
 import React, { useState } from "react"; // eslint-disable-line no-unused-vars
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { ref, set } from "firebase/database";
-import { auth, database, functions } from "../firebaseConfig"; // database 객체 가져오기
+import { ref, set, get } from "firebase/database";
+import { auth, database } from "../firebaseConfig"; // database 객체 가져오기
 
 import PropTypes from "prop-types";
 import classes from "./SignUpForm.module.css";
-
-const checkNicknameUnique = async (nickname) => {
-  const checkNicknameFunction = functions.httpsCallable("checkNickname");
-  try {
-    const result = await checkNicknameFunction({ nickname });
-    return result.data.unique;
-  } catch (error) {
-    console.error("Error checking nickname uniqueness", error);
-    throw error;
-  }
-};
 
 const SignUpForm = ({ onSignUpSuccess }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nickname, setNickname] = useState("");
+
+  const checkNicknameUnique = async (nickname) => {
+    const usersRef = ref(database, "users");
+    const snapshot = await get(usersRef);
+    let isUnique = true;
+
+    snapshot.forEach((userSnapshot) => {
+      const userData = userSnapshot.val();
+      if (userData.nickname === nickname) {
+        isUnique = false;
+      }
+    });
+
+    return isUnique;
+  };
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -41,12 +45,14 @@ const SignUpForm = ({ onSignUpSuccess }) => {
       // 사용자 프로필 업데이트 (닉네임을 displayName으로 설정)
       await updateProfile(user, {
         displayName: nickname,
+        photoURL: "img/default_profile.png", // 기본 프로필 이미지 URL 설정
       });
 
       // Firebase Realtime Database에 사용자 정보 저장
       await set(ref(database, "users/" + user.uid), {
         email: email,
         nickname: nickname,
+        profileURL: "img/default_profile.png", // 데이터베이스에도 프로필 이미지 URL 저장
       });
 
       alert("회원가입이 성공적으로 완료되었습니다.");

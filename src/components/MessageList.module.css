@@ -1,6 +1,7 @@
 .message_list {
   position: relative;
   width: 100%;
+  height: 100%;
   padding: 20px;
   background: #fff;
   border-radius: 10px;
@@ -26,7 +27,6 @@
   max-width: 40px;
   max-height: 40px;
   border-radius: 100%;
-  border: 1px solid #ccc;
   overflow: hidden;
   margin: 0 10px 0 0;
 }

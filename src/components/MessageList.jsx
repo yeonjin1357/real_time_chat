@@ -1,14 +1,13 @@
-// src/components/MessageList.jsx
-import React, { useEffect, useState } from "react"; // eslint-disable-line no-unused-vars
+import React, { useEffect, useState, useRef } from "react"; // eslint-disable-line no-unused-vars
 import { database } from "../firebaseConfig";
 import { ref, onValue } from "firebase/database";
 
 import classes from "./MessageList.module.css";
 import PropTypes from "prop-types";
-import messageProfile from "../assets/message_profile.jpg";
 
 const MessageList = ({ currentUser }) => {
   const [messages, setMessages] = useState([]);
+  const messageListRef = useRef(null); // 메시지 리스트 DOM 요소에 대한 참조 생성
 
   useEffect(() => {
     const messagesRef = ref(database, "messages");
@@ -28,12 +27,22 @@ const MessageList = ({ currentUser }) => {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    // 메시지 목록이 변경될 때마다 스크롤 위치를 조정
+    if (messageListRef.current) {
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+    }
+  }, [messages]); // 메시지 목록이 변경될 때마다 이 효과를 실행
+
   return (
-    <div className={classes.message_list}>
+    <div ref={messageListRef} className={classes.message_list}>
+      {" "}
+      {/* 참조 연결 */}
+      {/* 메시지 목록 렌더링 */}
       {messages.map((message) => (
         <div key={message.id} className={`${classes.message} ${message.nickname === currentUser.displayName ? classes.current_user : ""}`}>
           <div className={classes.profile}>
-            <img src={messageProfile} alt="" />
+            <img src={currentUser.photoURL}></img>
           </div>
           <div className={classes.content}>
             <p className={classes.nickname}>{message.nickname}</p>

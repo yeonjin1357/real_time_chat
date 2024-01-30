@@ -1,0 +1,8 @@
+.menu {
+  display: flex;
+  padding: 20px 10px;
+  border-radius: 15px;
+  border: 1px solid #ccc;
+  text-align: center;
+  background: #fff;
+}
