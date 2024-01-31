@@ -15,7 +15,6 @@ const UserProfile = ({ user }) => {
 
 UserProfile.propTypes = {
   user: PropTypes.object.isRequired,
-  onImageChange: PropTypes.func.isRequired,
 };
 
 export default UserProfile;

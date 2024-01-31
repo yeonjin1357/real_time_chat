@@ -47,3 +47,8 @@ img {
   height: auto;
   vertical-align: top;
 }
+
+ul,
+li {
+  list-style: none;
+}

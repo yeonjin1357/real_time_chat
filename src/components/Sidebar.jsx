@@ -5,12 +5,12 @@ import OnlineUsers from "./OnlineUsers";
 import SidebarMenu from "./SidebarMenu";
 import classes from "./Sidebar.module.css";
 
-const Sidebar = ({ user, onLogout, onlineUsers }) => {
+const Sidebar = ({ user, onLogout }) => {
   return (
     <div className={classes.sidebar}>
       <article>
         <UserProfile user={user} />
-        <OnlineUsers users={onlineUsers} />
+        <OnlineUsers user={user} />
         <SidebarMenu onLogout={onLogout} />
       </article>
     </div>
@@ -20,8 +20,6 @@ const Sidebar = ({ user, onLogout, onlineUsers }) => {
 Sidebar.propTypes = {
   user: PropTypes.object.isRequired,
   onLogout: PropTypes.func.isRequired,
-  onlineUsers: PropTypes.array.isRequired,
-  onImageChange: PropTypes.func.isRequired,
 };
 
 export default Sidebar;

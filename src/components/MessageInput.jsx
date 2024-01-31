@@ -1,5 +1,5 @@
 import React, { useState } from "react"; // eslint-disable-line no-unused-vars
-import { database } from "../firebaseConfig";
+import { db } from "../firebaseConfig";
 import { ref, push } from "firebase/database";
 
 import classes from "./MessageInput.module.css";
@@ -11,7 +11,7 @@ const MessageInput = ({ nickname }) => {
   const handleSendMessage = () => {
     if (message.trim() !== "") {
       // Firebase Realtime Database 참조 생성
-      const messagesRef = ref(database, "messages");
+      const messagesRef = ref(db, "messages");
 
       // 메시지를 Realtime Database에 저장
       push(messagesRef, {

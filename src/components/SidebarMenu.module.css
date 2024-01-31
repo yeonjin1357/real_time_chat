@@ -6,3 +6,14 @@
   text-align: center;
   background: #fff;
 }
+
+.menu > div {
+  display: flex;
+  margin: 0 10px;
+}
+
+.menu i {
+  font-size: 24px;
+  color: #929292;
+  cursor: pointer;
+}

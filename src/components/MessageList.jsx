@@ -1,16 +1,16 @@
 import React, { useEffect, useState, useRef } from "react"; // eslint-disable-line no-unused-vars
-import { database } from "../firebaseConfig";
+import { db } from "../firebaseConfig";
 import { ref, onValue } from "firebase/database";
 
 import classes from "./MessageList.module.css";
 import PropTypes from "prop-types";
 
-const MessageList = ({ currentUser }) => {
+const MessageList = ({ user }) => {
   const [messages, setMessages] = useState([]);
   const messageListRef = useRef(null); // 메시지 리스트 DOM 요소에 대한 참조 생성
 
   useEffect(() => {
-    const messagesRef = ref(database, "messages");
+    const messagesRef = ref(db, "messages");
 
     const unsubscribe = onValue(messagesRef, (snapshot) => {
       const messagesData = snapshot.val();
@@ -40,9 +40,9 @@ const MessageList = ({ currentUser }) => {
       {/* 참조 연결 */}
       {/* 메시지 목록 렌더링 */}
       {messages.map((message) => (
-        <div key={message.id} className={`${classes.message} ${message.nickname === currentUser.displayName ? classes.current_user : ""}`}>
+        <div key={message.id} className={`${classes.message} ${message.nickname === user.displayName ? classes.current_user : ""}`}>
           <div className={classes.profile}>
-            <img src={currentUser.photoURL}></img>
+            <img src={user.photoURL}></img>
           </div>
           <div className={classes.content}>
             <p className={classes.nickname}>{message.nickname}</p>
@@ -56,7 +56,7 @@ const MessageList = ({ currentUser }) => {
 };
 
 MessageList.propTypes = {
-  currentUser: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
 };
 
 export default MessageList;

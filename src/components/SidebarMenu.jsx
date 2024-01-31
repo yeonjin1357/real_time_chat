@@ -5,9 +5,15 @@ import classes from "./SidebarMenu.module.css";
 const SidebarMenu = ({ onLogout }) => {
   return (
     <div className={classes.menu}>
-      <button>설정</button>
-      <button onClick={onLogout}>로그아웃</button>
-      <button>알림</button>
+      <div onClick={onLogout}>
+        <i className="fa-solid fa-arrow-right-from-bracket"></i>
+      </div>
+      <div>
+        <i className="fa-solid fa-gear"></i>
+      </div>
+      <div>
+        <i className="fa-solid fa-bell"></i>
+      </div>
     </div>
   );
 };

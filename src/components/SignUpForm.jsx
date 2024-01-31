@@ -2,7 +2,7 @@
 import React, { useState } from "react"; // eslint-disable-line no-unused-vars
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { ref, set, get } from "firebase/database";
-import { auth, database } from "../firebaseConfig"; // database 객체 가져오기
+import { auth, db } from "../firebaseConfig"; // database 객체 가져오기
 
 import PropTypes from "prop-types";
 import classes from "./SignUpForm.module.css";
@@ -13,7 +13,7 @@ const SignUpForm = ({ onSignUpSuccess }) => {
   const [nickname, setNickname] = useState("");
 
   const checkNicknameUnique = async (nickname) => {
-    const usersRef = ref(database, "users");
+    const usersRef = ref(db, "users");
     const snapshot = await get(usersRef);
     let isUnique = true;
 
@@ -49,7 +49,7 @@ const SignUpForm = ({ onSignUpSuccess }) => {
       });
 
       // Firebase Realtime Database에 사용자 정보 저장
-      await set(ref(database, "users/" + user.uid), {
+      await set(ref(db, "users/" + user.uid), {
         email: email,
         nickname: nickname,
         profileURL: "img/default_profile.png", // 데이터베이스에도 프로필 이미지 URL 저장
