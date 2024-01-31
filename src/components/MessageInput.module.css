@@ -10,13 +10,25 @@
   width: 100%;
   padding: 8px 15px;
   margin: 0 20px 0 0;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
 
 .message_input button {
   padding: 8px 15px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   background: #fff;
   transition: background 0.4s ease-in;
   white-space: nowrap;
+  border-radius: 5px;
+}
+
+@media screen and (max-width: 480px) {
+  .message_input {
+    margin-top: 20px;
+  }
+
+  .message_input input {
+    font-size: 14px;
+  }
 }

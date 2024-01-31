@@ -1,4 +1,3 @@
-// src/components/SignUpForm.jsx
 import React, { useState } from "react"; // eslint-disable-line no-unused-vars
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { ref, set, get } from "firebase/database";
@@ -39,6 +38,8 @@ const SignUpForm = ({ onSignUpSuccess }) => {
 
     // 회원가입 로직
     try {
+      alert("회원가입이 완료되었습니다.");
+
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
@@ -54,8 +55,7 @@ const SignUpForm = ({ onSignUpSuccess }) => {
         nickname: nickname,
         profileURL: "img/default_profile.png", // 데이터베이스에도 프로필 이미지 URL 저장
       });
-
-      alert("회원가입이 성공적으로 완료되었습니다.");
+      // 회원가입 성공 후 처리 (예: 채팅방으로 이동)
       onSignUpSuccess();
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {

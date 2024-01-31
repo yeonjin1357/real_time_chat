@@ -1,14 +1,22 @@
+import React, { useState } from "react"; // eslint-disable-line no-unused-vars
 import { set } from "firebase/database";
 import { auth, db, ref, serverTimestamp } from "../firebaseConfig"; // 필요한 Firebase 함수들을 import
 import { signOut } from "firebase/auth";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
+import HamburgerMenu from "./HamburgerMenu";
 
 import Sidebar from "./Sidebar";
 import classes from "./ChatRoom.module.css";
 import PropTypes from "prop-types";
 
 const ChatRoom = ({ user }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   const handleLogout = () => {
     const user = auth.currentUser; // 현재 로그인한 사용자 정보 가져오기
 
@@ -39,7 +47,8 @@ const ChatRoom = ({ user }) => {
 
   return (
     <div className={classes.chat_room}>
-      <Sidebar user={user} onLogout={handleLogout} />
+      <HamburgerMenu onToggleMenu={toggleMenu} isOpen={isMenuOpen}></HamburgerMenu>
+      <Sidebar user={user} onLogout={handleLogout} isOpen={isMenuOpen} />
       <div className={classes.message}>
         <MessageList user={user} />
         <MessageInput nickname={user.displayName} />

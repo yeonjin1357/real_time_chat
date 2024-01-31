@@ -1,0 +1,127 @@
+.mobile_menu {
+  position: absolute;
+  left: 20px;
+  top: 50px;
+  z-index: 10;
+}
+
+.hamburger_wrap {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 auto;
+  width: 70%;
+}
+
+.checkbox {
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+}
+
+.hamburger {
+  position: relative;
+  margin: 0 auto;
+  width: 21px;
+  height: 21px;
+  cursor: pointer;
+}
+
+.hamburger::before {
+  position: absolute;
+  content: "";
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+  background: #fff;
+  border-radius: 50%;
+}
+
+.hamburger span {
+  position: absolute;
+  display: block;
+  padding: 0;
+  width: 21px;
+  height: 3px;
+  background-color: #525252;
+  border-radius: 4px;
+  transition: all 0.4s ease-in-out;
+}
+
+.hamburger span:nth-child(1) {
+  top: 0;
+}
+
+.hamburger span:nth-child(2) {
+  top: 8.5px;
+}
+
+.hamburger span:nth-child(3) {
+  top: 8.5px;
+  right: 0;
+}
+
+.hamburger span:nth-child(4) {
+  bottom: 0;
+}
+
+/* HAMBURGER 2 */
+
+.checkbox:checked + label > .hamburger span:nth-child(1) {
+  transform: translateX(40px);
+  background-color: transparent;
+}
+
+.checkbox:checked + label > .hamburger span:nth-child(2) {
+  transform: rotate(45deg);
+}
+
+.checkbox:checked + label > .hamburger span:nth-child(3) {
+  transform: rotate(-45deg);
+}
+
+.checkbox:checked + label > .hamburger span:nth-child(4) {
+  transform: translateX(-40px);
+  background-color: transparent;
+}
+
+@media screen and (max-width: 1200px) {
+  .active .hamburger::before {
+    background: #525252;
+  }
+
+  .active .hamburger span {
+    background-color: #fff;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .mobile_menu {
+    left: 15px;
+    top: 30px;
+  }
+
+  .hamburger {
+    height: 15px;
+  }
+
+  .hamburger::before {
+    width: 40px;
+    height: 40px;
+  }
+
+  .hamburger span {
+    height: 2px;
+  }
+
+  .hamburger span:nth-child(2),
+  .hamburger span:nth-child(3) {
+    top: 6px;
+  }
+}

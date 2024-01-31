@@ -68,3 +68,28 @@
 .message.current_user .nickname {
   display: none;
 }
+
+@media screen and (max-width: 480px) {
+  .message_list {
+    padding: 20px 10px;
+  }
+
+  .profile {
+    width: 35px;
+    height: 35px;
+  }
+
+  .nickname {
+    font-size: 16px;
+  }
+
+  .text {
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+
+  .time {
+    font-size: 11px;
+  }
+}

@@ -12,10 +12,30 @@
   margin: 0 auto 10px;
   border: 3px solid #fff;
   border-radius: 50%;
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
 .nickname {
   font-size: 26px;
   font-weight: 900;
+}
+
+@media screen and (max-width: 1500px) {
+  .profile_img {
+    max-width: 150px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .profile {
+    padding: 15px 10px;
+    border-radius: 10px;
+  }
+
+  .profile_img {
+    max-width: 120px;
+  }
+
+  .nickname {
+    font-size: 20px;
+  }
 }

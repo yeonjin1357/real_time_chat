@@ -1,21 +1,17 @@
 import React, { useEffect, useState } from "react"; // eslint-disable-line no-unused-vars
-import classes from "./OnlineUsers.module.css";
 import { onDisconnect, set, get } from "firebase/database";
-import { auth, db, ref, onValue, serverTimestamp } from "../firebaseConfig"; // 경로는 실제 구조에 맞게 조정하세요
+import { db, ref, onValue, serverTimestamp } from "../firebaseConfig"; // 경로는 실제 구조에 맞게 조정하세요
 
-const OnlineUsers = () => {
-  const [user, setUser] = useState(null);
+import classes from "./OnlineUsers.module.css";
+import PropTypes from "prop-types";
+
+const OnlineUsers = ({ myInfo }) => {
   const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(setUser);
-    return () => unsubscribe();
-  }, []);
+    if (!myInfo) return;
 
-  useEffect(() => {
-    if (!user) return;
-
-    const uid = user.uid;
+    const uid = myInfo.uid;
     const userStatusDatabaseRef = ref(db, `/status/${uid}`);
 
     const isOfflineForDatabase = {
@@ -31,38 +27,40 @@ const OnlineUsers = () => {
     const connectedRef = ref(db, ".info/connected");
     onValue(connectedRef, (snapshot) => {
       if (snapshot.val() === false) {
-        // 유저가 오프라인인 경우
         return;
       }
 
-      // `set` 사용 방식 수정
       onDisconnect(userStatusDatabaseRef)
         .set(isOfflineForDatabase)
         .then(() => {
-          set(userStatusDatabaseRef, isOnlineForDatabase); // 여기서 `set` 사용
+          set(userStatusDatabaseRef, isOnlineForDatabase);
         });
     });
 
     // 온라인 사용자 목록 실시간 감시
     const statusRef = ref(db, "/status");
-    onValue(statusRef, (snapshot) => {
+    onValue(statusRef, async (snapshot) => {
       const statuses = snapshot.val();
-      const userInfos = Object.keys(statuses)
-        .filter((uid) => statuses[uid].state === "online")
-        .map((uid) => {
-          return get(ref(db, `/users/${uid}`)).then((snapshot) => {
-            const userInfo = snapshot.val();
+      let userInfos = await Promise.all(
+        Object.keys(statuses)
+          .filter((uid) => statuses[uid].state === "online")
+          .map(async (uid) => {
+            const userSnapshot = await get(ref(db, `/users/${uid}`));
+            const userInfo = userSnapshot.val();
             return { uid, ...userInfo };
-          });
-        });
+          })
+      );
 
-      Promise.all(userInfos).then((results) => {
-        setOnlineUsers(results);
+      // 현재 로그인한 사용자(myInfo)를 목록에서 찾아 최상단으로 배치
+      userInfos = userInfos.sort((a, b) => {
+        if (a.uid === myInfo?.uid) return -1;
+        if (b.uid === myInfo?.uid) return 1;
+        return 0;
       });
-    });
-  }, [user]);
 
-  if (!user) return <div className={classes.online_users}>로그인이 필요합니다.</div>;
+      setOnlineUsers(userInfos);
+    });
+  }, [myInfo]);
 
   return (
     <div className={classes.online_users}>
@@ -80,6 +78,10 @@ const OnlineUsers = () => {
       </ul>
     </div>
   );
+};
+
+OnlineUsers.propTypes = {
+  myInfo: PropTypes.object.isRequired,
 };
 
 export default OnlineUsers;

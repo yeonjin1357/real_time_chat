@@ -1,4 +1,3 @@
-// src/components/LoginForm.jsx
 import React, { useState } from "react"; // eslint-disable-line no-unused-vars
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebaseConfig";
