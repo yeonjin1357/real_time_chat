@@ -1,5 +1,6 @@
 .mobile_menu {
   position: absolute;
+  display: none;
   left: 20px;
   top: 50px;
   z-index: 10;
@@ -92,6 +93,10 @@
 }
 
 @media screen and (max-width: 1200px) {
+  .mobile_menu {
+    display: block;
+  }
+
   .active .hamburger::before {
     background: #525252;
   }
