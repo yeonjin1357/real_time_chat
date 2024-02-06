@@ -1,18 +1,22 @@
 import React, { useState } from "react"; // eslint-disable-line no-unused-vars
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from "firebase/auth";
 import { auth } from "../firebaseConfig";
+import { useDispatch } from "react-redux";
+import { toggleSignUp } from "../features/ui/uiSlice";
 
-import PropTypes from "prop-types";
 import classes from "./LoginForm.module.css";
 
-const LoginForm = ({ onSignUpClick }) => {
+const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const dispatch = useDispatch(); // useDispatch hook을 사용하여 Redux dispatch 함수를 가져옵니다.
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      await setPersistence(auth, browserSessionPersistence);
       await signInWithEmailAndPassword(auth, email, password);
+      // 로그인 성공 처리, 필요하다면 여기에 추가 코드를 작성하세요.
     } catch (error) {
       alert("로그인 정보가 정확하지 않습니다.");
       console.error("Login failed", error);
@@ -33,23 +37,19 @@ const LoginForm = ({ onSignUpClick }) => {
           <span className={classes.focus} data-symbol="password"></span>
         </div>
         <div className={classes.signup_link}>
-          <button type="button" onClick={onSignUpClick}>
+          <button type="button" onClick={() => dispatch(toggleSignUp())}>
             회원가입 하기
           </button>
         </div>
         <div className={classes.login_btn}>
           <div>
             <div className={classes.login_btn_bg}></div>
-            <button type="submit"> 채팅 참여하기 </button>
+            <button type="submit">채팅 참여하기</button>
           </div>
         </div>
       </article>
     </form>
   );
-};
-
-LoginForm.propTypes = {
-  onSignUpClick: PropTypes.func.isRequired, // 회원가입 클릭 핸들러 추가
 };
 
 export default LoginForm;

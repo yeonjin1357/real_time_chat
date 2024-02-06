@@ -1,15 +1,17 @@
 import React, { useState } from "react"; // eslint-disable-line no-unused-vars
+import { useDispatch } from "react-redux";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { ref, set, get } from "firebase/database";
-import { auth, db } from "../firebaseConfig"; // database 객체 가져오기
+import { auth, db } from "../firebaseConfig";
+import { toggleSignUp } from "../features/ui/uiSlice"; // Redux 상태 관리를 위한 액션
 
-import PropTypes from "prop-types";
 import classes from "./SignUpForm.module.css";
 
-const SignUpForm = ({ onSignUpSuccess }) => {
+const SignUpForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nickname, setNickname] = useState("");
+  const dispatch = useDispatch(); // Redux 사용을 위한 dispatch 함수
 
   const checkNicknameUnique = async (nickname) => {
     const usersRef = ref(db, "users");
@@ -36,7 +38,6 @@ const SignUpForm = ({ onSignUpSuccess }) => {
       return;
     }
 
-    // 회원가입 로직
     try {
       alert("회원가입이 완료되었습니다.");
 
@@ -46,7 +47,8 @@ const SignUpForm = ({ onSignUpSuccess }) => {
       // 사용자 프로필 업데이트 (닉네임을 displayName으로 설정)
       await updateProfile(user, {
         displayName: nickname,
-        photoURL: "img/default_profile.png", // 기본 프로필 이미지 URL 설정
+        profileURL: "img/default_profile.png", // 기본 프로필 이미지 URL 설정
+        status: true,
       });
 
       // Firebase Realtime Database에 사용자 정보 저장
@@ -54,9 +56,9 @@ const SignUpForm = ({ onSignUpSuccess }) => {
         email: email,
         nickname: nickname,
         profileURL: "img/default_profile.png", // 데이터베이스에도 프로필 이미지 URL 저장
+        status: true,
       });
-      // 회원가입 성공 후 처리 (예: 채팅방으로 이동)
-      onSignUpSuccess();
+      dispatch(toggleSignUp()); // 회원가입 성공 후 로그인 화면으로 전환
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
         alert("이미 사용 중인 이메일 주소입니다.");
@@ -93,7 +95,7 @@ const SignUpForm = ({ onSignUpSuccess }) => {
           <span className={classes.focus} data-symbol="user"></span>
         </div>
         <div className={classes.login_link}>
-          <button type="button" onClick={onSignUpSuccess}>
+          <button type="button" onClick={() => dispatch(toggleSignUp())}>
             로그인 화면으로 돌아가기
           </button>
         </div>
@@ -106,10 +108,6 @@ const SignUpForm = ({ onSignUpSuccess }) => {
       </article>
     </form>
   );
-};
-
-SignUpForm.propTypes = {
-  onSignUpSuccess: PropTypes.func.isRequired,
 };
 
 export default SignUpForm;

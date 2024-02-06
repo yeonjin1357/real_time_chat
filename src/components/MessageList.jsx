@@ -1,18 +1,30 @@
 import React, { useEffect, useState, useRef } from "react"; // eslint-disable-line no-unused-vars
+import { useSelector } from "react-redux";
 import { db } from "../firebaseConfig";
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, get } from "firebase/database";
 
 import classes from "./MessageList.module.css";
-import PropTypes from "prop-types";
 
-const MessageList = ({ user }) => {
+const MessageList = () => {
   const [messages, setMessages] = useState([]);
-  const messageListRef = useRef(null); // 메시지 리스트 DOM 요소에 대한 참조 생성
+  const [usersProfiles, setUsersProfiles] = useState({});
+  const messageListRef = useRef(null);
+  const currentUser = useSelector((state) => state.user.currentUser);
 
   useEffect(() => {
+    // 사용자 프로필 이미지를 불러오는 로직
+    const fetchUserProfile = async (uid) => {
+      const userRef = ref(db, `users/${uid}`);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        setUsersProfiles((prev) => ({ ...prev, [uid]: userData.profileURL || "img/default_profile.png" }));
+      }
+    };
+
     const messagesRef = ref(db, "messages");
 
-    const unsubscribe = onValue(messagesRef, (snapshot) => {
+    onValue(messagesRef, (snapshot) => {
       const messagesData = snapshot.val();
       const loadedMessages = [];
       for (const key in messagesData) {
@@ -20,29 +32,25 @@ const MessageList = ({ user }) => {
           id: key,
           ...messagesData[key],
         });
+        // 각 메시지의 사용자 UID에 대한 프로필 이미지 조회
+        fetchUserProfile(messagesData[key].uid);
       }
       setMessages(loadedMessages);
     });
-
-    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
-    // 메시지 목록이 변경될 때마다 스크롤 위치를 조정
     if (messageListRef.current) {
       messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
     }
-  }, [messages]); // 메시지 목록이 변경될 때마다 이 효과를 실행
+  }, [messages]);
 
   return (
     <div ref={messageListRef} className={classes.message_list}>
-      {" "}
-      {/* 참조 연결 */}
-      {/* 메시지 목록 렌더링 */}
       {messages.map((message) => (
-        <div key={message.id} className={`${classes.message} ${message.nickname === user.displayName ? classes.current_user : ""}`}>
+        <div key={message.id} className={`${classes.message} ${message.uid === currentUser.uid ? classes.current_user : ""}`}>
           <div className={classes.profile}>
-            <img src={user.photoURL}></img>
+            <img src={usersProfiles[message.uid] || "img/default_profile.png"} alt="Profile" />
           </div>
           <div className={classes.content}>
             <p className={classes.nickname}>{message.nickname}</p>
@@ -53,10 +61,6 @@ const MessageList = ({ user }) => {
       ))}
     </div>
   );
-};
-
-MessageList.propTypes = {
-  user: PropTypes.object.isRequired,
 };
 
 export default MessageList;

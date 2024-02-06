@@ -1,75 +1,66 @@
 import React, { useEffect, useState } from "react"; // eslint-disable-line no-unused-vars
-import { onDisconnect, set, get } from "firebase/database";
-import { db, ref, onValue, serverTimestamp } from "../firebaseConfig"; // 경로는 실제 구조에 맞게 조정하세요
-
+import { useSelector } from "react-redux";
+import { onDisconnect, update, ref, onValue, serverTimestamp } from "firebase/database";
+import { db } from "../firebaseConfig";
 import classes from "./OnlineUsers.module.css";
-import PropTypes from "prop-types";
 
-const OnlineUsers = ({ myInfo }) => {
+const OnlineUsers = () => {
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const currentUser = useSelector((state) => state.user.currentUser);
 
   useEffect(() => {
-    if (!myInfo) return;
+    if (!currentUser) return;
 
-    const uid = myInfo.uid;
-    const userStatusDatabaseRef = ref(db, `/status/${uid}`);
-
-    const isOfflineForDatabase = {
-      state: "offline",
-      last_changed: serverTimestamp(),
-    };
-
-    const isOnlineForDatabase = {
-      state: "online",
-      last_changed: serverTimestamp(),
-    };
-
+    const userStatusDatabaseRef = ref(db, `/users/${currentUser.uid}`);
     const connectedRef = ref(db, ".info/connected");
+    const isOfflineForDatabase = {
+      status: false,
+      last_changed: serverTimestamp(),
+    };
+    const isOnlineForDatabase = {
+      status: true,
+      last_changed: serverTimestamp(),
+    };
+
     onValue(connectedRef, (snapshot) => {
       if (snapshot.val() === false) {
         return;
       }
-
       onDisconnect(userStatusDatabaseRef)
-        .set(isOfflineForDatabase)
+        .update(isOfflineForDatabase)
         .then(() => {
-          set(userStatusDatabaseRef, isOnlineForDatabase);
+          update(userStatusDatabaseRef, isOnlineForDatabase);
         });
     });
 
     // 온라인 사용자 목록 실시간 감시
-    const statusRef = ref(db, "/status");
-    onValue(statusRef, async (snapshot) => {
+    const statusRef = ref(db, "/users");
+    onValue(statusRef, (snapshot) => {
       const statuses = snapshot.val();
-      let userInfos = await Promise.all(
-        Object.keys(statuses)
-          .filter((uid) => statuses[uid].state === "online")
-          .map(async (uid) => {
-            const userSnapshot = await get(ref(db, `/users/${uid}`));
-            const userInfo = userSnapshot.val();
-            return { uid, ...userInfo };
-          })
-      );
+      const userInfos = Object.keys(statuses)
+        .filter((key) => statuses[key].status === true)
+        .map((key) => ({
+          uid: key,
+          ...statuses[key],
+        }));
 
-      // 현재 로그인한 사용자(myInfo)를 목록에서 찾아 최상단으로 배치
-      userInfos = userInfos.sort((a, b) => {
-        if (a.uid === myInfo?.uid) return -1;
-        if (b.uid === myInfo?.uid) return 1;
-        return 0;
+      // 현재 로그인한 사용자를 목록에서 찾아 최상단으로 배치
+      const sortedUserInfos = userInfos.sort((a, b) => {
+        return a.uid === currentUser.uid ? -1 : b.uid === currentUser.uid ? 1 : 0;
       });
 
-      setOnlineUsers(userInfos);
+      setOnlineUsers(sortedUserInfos);
     });
-  }, [myInfo]);
+  }, [currentUser]);
 
   return (
     <div className={classes.online_users}>
-      <h2>현재 접속자</h2>
+      <h2>현재 접속자 ({onlineUsers.length}명)</h2>
       <ul className={classes.online_users_list}>
         {onlineUsers.map((userInfo) => (
           <li key={userInfo.uid}>
             <div className={classes.userinfo}>
-              <img className={classes.profile} src={userInfo.profileURL} alt={`${userInfo.nickname}'s profile`} />
+              <img className={classes.profile} src={userInfo.profileURL || "img/default_profile.png"} alt={`${userInfo.nickname}'s profile`} />
               <p className={classes.nickname}>{userInfo.nickname}</p>
             </div>
             <span className={classes.dot}></span>
@@ -78,10 +69,6 @@ const OnlineUsers = ({ myInfo }) => {
       </ul>
     </div>
   );
-};
-
-OnlineUsers.propTypes = {
-  myInfo: PropTypes.object.isRequired,
 };
 
 export default OnlineUsers;

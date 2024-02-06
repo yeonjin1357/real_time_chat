@@ -1,33 +1,35 @@
 import React, { useState } from "react"; // eslint-disable-line no-unused-vars
+import { useSelector } from "react-redux";
 import { db } from "../firebaseConfig";
 import { ref, push } from "firebase/database";
 
 import classes from "./MessageInput.module.css";
-import PropTypes from "prop-types";
 
-const MessageInput = ({ nickname }) => {
+const MessageInput = () => {
   const [message, setMessage] = useState("");
+  const currentUser = useSelector((state) => state.user.currentUser);
 
   const handleSendMessage = () => {
-    if (message.trim() !== "") {
-      // Firebase Realtime Database 참조 생성
+    if (message.trim() !== "" && currentUser) {
       const messagesRef = ref(db, "messages");
 
-      // 메시지를 Realtime Database에 저장
       push(messagesRef, {
         text: message,
-        nickname: nickname, // 닉네임 값이 올바르게 설정되어 있는지 확인
+        uid: currentUser.uid, // 사용자의 uid를 메시지 객체에 추가
+        nickname: currentUser.displayName, // Redux 스토어에서 가져온 닉네임 사용
         timestamp: Date.now(),
+        // 프로필 이미지 URL을 여기에 포함시키지 않고, 대신 MessageList에서 uid를 기반으로 조회
       });
-      console.log("Nickname:", nickname, "Message:", message);
 
       setMessage(""); // 입력 필드 초기화
     }
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !e.shiftKey) {
+      // Shift 키가 눌리지 않은 상태에서 Enter를 누를 때 메시지를 보냅니다.
       handleSendMessage();
+      e.preventDefault(); // Enter 키를 눌렀을 때의 기본 동작(새 줄 추가)을 방지합니다.
     }
   };
 
@@ -37,10 +39,6 @@ const MessageInput = ({ nickname }) => {
       <button onClick={handleSendMessage}>발송</button>
     </div>
   );
-};
-
-MessageInput.propTypes = {
-  nickname: PropTypes.string.isRequired,
 };
 
 export default MessageInput;
