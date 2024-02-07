@@ -3,7 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue, serverTimestamp } from "firebase/database";
 import { getAuth } from "firebase/auth";
 import { getFunctions } from "firebase/functions";
-import { getStorage } from "firebase/storage"; // Firebase Storage 모듈 임포트
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBshhkfIbVHWMQnp9O2-GHnzjc5GmU1G_Q",
@@ -16,10 +16,11 @@ const firebaseConfig = {
   measurementId: "G-J86JR38K0E",
 };
 
+// 초기화
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 const functions = getFunctions(app);
-const storage = getStorage(app); // Firebase Storage 초기화
+const storage = getStorage(app);
 
 export { db, auth, ref, onValue, serverTimestamp, functions, storage };

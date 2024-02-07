@@ -1,22 +1,21 @@
 import React, { useState } from "react"; // eslint-disable-line no-unused-vars
-import { signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from "firebase/auth";
-import { auth } from "../firebaseConfig";
 import { useDispatch } from "react-redux";
 import { toggleSignUp } from "../features/ui/uiSlice";
+import { auth } from "../firebaseConfig";
+import { signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from "firebase/auth";
 
 import classes from "./LoginForm.module.css";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const dispatch = useDispatch(); // useDispatch hook을 사용하여 Redux dispatch 함수를 가져옵니다.
+  const dispatch = useDispatch();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await setPersistence(auth, browserSessionPersistence);
-      await signInWithEmailAndPassword(auth, email, password);
-      // 로그인 성공 처리, 필요하다면 여기에 추가 코드를 작성하세요.
+      await setPersistence(auth, browserSessionPersistence); // 세션 지속성 설정
+      await signInWithEmailAndPassword(auth, email, password); // 이메일과 비밀번호로 로그인 시도
     } catch (error) {
       alert("로그인 정보가 정확하지 않습니다.");
       console.error("Login failed", error);

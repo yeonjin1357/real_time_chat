@@ -1,9 +1,9 @@
 import React, { useState } from "react"; // eslint-disable-line no-unused-vars
 import { useDispatch } from "react-redux";
+import { toggleSignUp } from "../features/ui/uiSlice";
+import { auth, db } from "../firebaseConfig";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { ref, set, get } from "firebase/database";
-import { auth, db } from "../firebaseConfig";
-import { toggleSignUp } from "../features/ui/uiSlice"; // Redux 상태 관리를 위한 액션
 
 import classes from "./SignUpForm.module.css";
 
@@ -11,8 +11,9 @@ const SignUpForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nickname, setNickname] = useState("");
-  const dispatch = useDispatch(); // Redux 사용을 위한 dispatch 함수
+  const dispatch = useDispatch();
 
+  // 닉네임 중복 검사
   const checkNicknameUnique = async (nickname) => {
     const usersRef = ref(db, "users");
     const snapshot = await get(usersRef);
@@ -28,6 +29,7 @@ const SignUpForm = () => {
     return isUnique;
   };
 
+  // 회원가입 처리
   const handleSignUp = async (e) => {
     e.preventDefault();
 
@@ -44,21 +46,23 @@ const SignUpForm = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // 사용자 프로필 업데이트 (닉네임을 displayName으로 설정)
+      // Firebase Authentication에 사용자 정보 업데이트
       await updateProfile(user, {
-        displayName: nickname,
-        profileURL: "img/default_profile.png", // 기본 프로필 이미지 URL 설정
-        status: true,
+        displayName: nickname, // 닉네임
+        profileURL: "img/default_profile.png", // 프로필 이미지
+        status: true, // 사용자 상태 (온,오프라인)
       });
 
       // Firebase Realtime Database에 사용자 정보 저장
       await set(ref(db, "users/" + user.uid), {
         email: email,
         nickname: nickname,
-        profileURL: "img/default_profile.png", // 데이터베이스에도 프로필 이미지 URL 저장
-        status: true,
+        profileURL: "img/default_profile.png", // 프로필 이미지
+        status: true, // 사용자 상태 (온,오프라인)
       });
-      dispatch(toggleSignUp()); // 회원가입 성공 후 로그인 화면으로 전환
+
+      // 회원가입 성공 후 UI 상태 업데이트
+      dispatch(toggleSignUp());
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
         alert("이미 사용 중인 이메일 주소입니다.");

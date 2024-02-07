@@ -2,6 +2,7 @@ import React from "react"; // eslint-disable-line no-unused-vars
 import UserProfile from "./UserProfile";
 import OnlineUsers from "./OnlineUsers";
 import SidebarMenu from "./SidebarMenu";
+
 import PropTypes from "prop-types";
 import classes from "./Sidebar.module.css";
 
@@ -9,8 +10,8 @@ const Sidebar = ({ onLogout, isOpen }) => {
   return (
     <div className={`${classes.sidebar} ${isOpen ? classes.active : ""}`}>
       <article>
-        <UserProfile /> {/* user prop 제거 */}
-        <OnlineUsers /> {/* user prop 제거 */}
+        <UserProfile />
+        <OnlineUsers />
         <SidebarMenu onLogout={onLogout} />
       </article>
     </div>

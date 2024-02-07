@@ -1,0 +1,36 @@
+.loading_wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  background: url(../assets/chat_bg.jpg) center/cover no-repeat;
+}
+
+.loading_bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loader {
+  border: 4px solid rgba(255, 255, 255, 0.5);
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border-left-color: #00dbde;
+  animation: spin 1s ease-in-out infinite;
+}

@@ -1,32 +1,32 @@
 import React from "react"; // eslint-disable-line no-unused-vars
 import { useSelector, useDispatch } from "react-redux";
+import { setUser } from "../features/user/userSlice";
+import { db, storage } from "../firebaseConfig";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { ref as databaseRef, update } from "firebase/database";
-import { db, storage } from "../firebaseConfig"; // Firebase 설정을 가져옵니다.
-import { setUser } from "../features/user/userSlice"; // Redux 액션
 import classes from "./UserProfile.module.css";
 
 const UserProfile = () => {
-  const currentUser = useSelector((state) => state.user.currentUser);
+  const currentUser = useSelector((state) => state.user.currentUser); // 현재 로그인한 사용자 정보 조회
   const dispatch = useDispatch();
 
   const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file || !currentUser) return;
+    const file = e.target.files[0]; // 사용자가 선택한 파일
+    if (!file || !currentUser) return; // 파일이 없거나 사용자 정보가 없으면 처리 중단
 
     try {
-      // Firebase Storage에 이미지 업로드
+      // 선택된 이미지를 Firebase Storage에 업로드
       const fileRef = storageRef(storage, `profileImages/${currentUser.uid}`);
-      await uploadBytes(fileRef, file);
-      const profileURL = await getDownloadURL(fileRef);
+      await uploadBytes(fileRef, file); // 파일 업로드
+      const profileURL = await getDownloadURL(fileRef); // 업로드된 파일의 URL 가져오기
 
-      // 사용자 프로필 업데이트
+      // Firebase Realtime Database에 사용자 프로필 URL 업데이트
       await update(databaseRef(db, `users/${currentUser.uid}`), { profileURL });
 
-      // Redux 스토어 업데이트
+      // 업데이트된 프로필 URL을 포함하여 Redux 스토어의 사용자 정보 업데이트
       dispatch(setUser({ ...currentUser, profileURL }));
     } catch (error) {
-      console.error("Failed to upload profile image", error);
+      console.error("Failed to upload profile image", error); // 이미지 업로드 실패 시 오류 로깅
     }
   };
 

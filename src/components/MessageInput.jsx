@@ -7,29 +7,32 @@ import classes from "./MessageInput.module.css";
 
 const MessageInput = () => {
   const [message, setMessage] = useState("");
-  const currentUser = useSelector((state) => state.user.currentUser);
+  const currentUser = useSelector((state) => state.user.currentUser); // 현재 로그인한 사용자 정보 가져오기
 
+  // 메시지 전송 처리
   const handleSendMessage = () => {
+    // 메시지 내용이 비어있지 않고, 사용자 정보가 있을 경우에만 처리
     if (message.trim() !== "" && currentUser) {
       const messagesRef = ref(db, "messages");
 
+      // 메시지 정보를 Realtime Database에 저장
       push(messagesRef, {
-        text: message,
-        uid: currentUser.uid, // 사용자의 uid를 메시지 객체에 추가
-        nickname: currentUser.displayName, // Redux 스토어에서 가져온 닉네임 사용
-        timestamp: Date.now(),
+        text: message, // 메시지 내용
+        uid: currentUser.uid, // 메시지 작성자의 UID
+        nickname: currentUser.displayName, // 사용자 닉네임
+        timestamp: Date.now(), // 메시지 전송 시간
         // 프로필 이미지 URL을 여기에 포함시키지 않고, 대신 MessageList에서 uid를 기반으로 조회
       });
 
-      setMessage(""); // 입력 필드 초기화
+      setMessage(""); // 메시지 전송 후 입력 필드 초기화
     }
   };
 
+  // 키보드 입력 처리 (Enter 키로 메시지 전송)
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      // Shift 키가 눌리지 않은 상태에서 Enter를 누를 때 메시지를 보냅니다.
       handleSendMessage();
-      e.preventDefault(); // Enter 키를 눌렀을 때의 기본 동작(새 줄 추가)을 방지합니다.
+      e.preventDefault(); // Enter 키 기본 동작(개행) 방지
     }
   };
 

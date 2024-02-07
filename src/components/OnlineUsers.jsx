@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react"; // eslint-disable-line no-unused-vars
 import { useSelector } from "react-redux";
-import { onDisconnect, update, ref, onValue, serverTimestamp } from "firebase/database";
 import { db } from "../firebaseConfig";
+import { onDisconnect, update, ref, onValue, serverTimestamp } from "firebase/database";
+
 import classes from "./OnlineUsers.module.css";
 
 const OnlineUsers = () => {
-  const [onlineUsers, setOnlineUsers] = useState([]);
-  const currentUser = useSelector((state) => state.user.currentUser);
+  const [onlineUsers, setOnlineUsers] = useState([]); // 온라인 사용자 목록 상태 관리
+  const currentUser = useSelector((state) => state.user.currentUser); // 현재 로그인한 사용자 정보
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser) return; // 사용자가 로그인하지 않은 경우 함수 실행 중지
 
+    // 사용자 상태를 실시간으로 감시하기 위한 데이터베이스 참조
     const userStatusDatabaseRef = ref(db, `/users/${currentUser.uid}`);
     const connectedRef = ref(db, ".info/connected");
     const isOfflineForDatabase = {
@@ -22,18 +24,21 @@ const OnlineUsers = () => {
       last_changed: serverTimestamp(),
     };
 
+    // 연결 상태 감시
     onValue(connectedRef, (snapshot) => {
       if (snapshot.val() === false) {
-        return;
+        return; // 연결이 끊긴 경우 함수 실행 중지
       }
+      // 오프라인으로 전환될 경우 데이터베이스 업데이트
       onDisconnect(userStatusDatabaseRef)
+        // 다시 온라인 상태일 때 데이터베이스 업데이트
         .update(isOfflineForDatabase)
         .then(() => {
           update(userStatusDatabaseRef, isOnlineForDatabase);
         });
     });
 
-    // 온라인 사용자 목록 실시간 감시
+    // 전체 사용자 중 온라인 상태인 사용자 목록 감시
     const statusRef = ref(db, "/users");
     onValue(statusRef, (snapshot) => {
       const statuses = snapshot.val();
@@ -49,7 +54,7 @@ const OnlineUsers = () => {
         return a.uid === currentUser.uid ? -1 : b.uid === currentUser.uid ? 1 : 0;
       });
 
-      setOnlineUsers(sortedUserInfos);
+      setOnlineUsers(sortedUserInfos); // 온라인 사용자 목록 상태 업데이트
     });
   }, [currentUser]);
 

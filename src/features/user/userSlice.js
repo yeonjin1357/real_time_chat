@@ -4,8 +4,8 @@ import { createSlice } from "@reduxjs/toolkit";
 export const userSlice = createSlice({
   name: "user",
   initialState: {
-    currentUser: null,
-    isLoading: true,
+    currentUser: null, // 현재 사용자 정보
+    isLoading: true, // 로딩 컴포넌트 여부
   },
   reducers: {
     setUser: (state, action) => {
