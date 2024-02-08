@@ -2,7 +2,7 @@ import React, { useState } from "react"; // eslint-disable-line no-unused-vars
 import { useDispatch } from "react-redux";
 import { toggleSignUp } from "../features/ui/uiSlice";
 import { auth, db } from "../firebaseConfig";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile, signOut } from "firebase/auth";
 import { ref, set, get } from "firebase/database";
 
 import classes from "./SignUpForm.module.css";
@@ -41,8 +41,6 @@ const SignUpForm = () => {
     }
 
     try {
-      alert("회원가입이 완료되었습니다.");
-
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
@@ -50,7 +48,7 @@ const SignUpForm = () => {
       await updateProfile(user, {
         displayName: nickname, // 닉네임
         profileURL: "img/default_profile.png", // 프로필 이미지
-        status: true, // 사용자 상태 (온,오프라인)
+        status: false, // 사용자 상태 (온,오프라인)
       });
 
       // Firebase Realtime Database에 사용자 정보 저장
@@ -58,10 +56,12 @@ const SignUpForm = () => {
         email: email,
         nickname: nickname,
         profileURL: "img/default_profile.png", // 프로필 이미지
-        status: true, // 사용자 상태 (온,오프라인)
+        status: false, // 사용자 상태 (온,오프라인)
       });
 
       // 회원가입 성공 후 UI 상태 업데이트
+      alert("회원가입이 완료되었습니다.");
+      await signOut(auth);
       dispatch(toggleSignUp());
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {

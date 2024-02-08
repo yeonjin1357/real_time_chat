@@ -48,6 +48,8 @@ const App = () => {
     return <Loading></Loading>;
   }
 
+  console.log(currentUser);
+
   // 사용자 로그인 상태에 따라 적절한 컴포넌트 렌더링
   return <div className="app">{currentUser ? <ChatRoom /> : isSigningUp ? <SignUpForm /> : <LoginForm />}</div>;
 };
